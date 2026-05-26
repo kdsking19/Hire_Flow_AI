@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireFlow AI - Candidate Match Rankings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .ranking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+        }
+
+        .ranking-header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .back-btn:hover {
+            color: var(--accent-indigo);
+        }
+
+        /* Table Styling */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 0.75rem;
+            text-align: left;
+        }
+
+        .ranking-table th {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .ranking-table tbody tr {
+            background: rgba(22, 28, 45, 0.4);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .ranking-table tbody tr:hover {
+            background: rgba(22, 28, 45, 0.7);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.05);
+        }
+
+        .ranking-table td {
+            padding: 1.25rem 1.5rem;
+            font-size: 0.95rem;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .ranking-table td:first-child {
+            border-left: 1px solid var(--border-color);
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+            font-weight: 800;
+            text-align: center;
+            width: 80px;
+        }
+
+        .ranking-table td:last-child {
+            border-right: 1px solid var(--border-color);
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        /* Rank Numbers Accent colors */
+        .rank-badge {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            font-weight: 800;
+            text-align: center;
+        }
+
+        tr:nth-child(1) .rank-badge {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        tr:nth-child(2) .rank-badge {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        tr:nth-child(3) .rank-badge {
+            background: rgba(180, 83, 9, 0.1);
+            color: #d97706;
+            border: 1px solid rgba(180, 83, 9, 0.2);
+        }
+
+        .candidate-meta-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .candidate-meta-filename {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.2rem;
+            word-break: break-all;
+        }
+
+        /* Mini score progress bar */
+        .score-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            width: 160px;
+        }
+
+        .mini-progress {
+            flex-grow: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .mini-progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease-out;
+        }
+
+        .mini-progress-fill.success { background: var(--success); }
+        .mini-progress-fill.primary { background: var(--primary); }
+        .mini-progress-fill.warning { background: var(--warning); }
+        .mini-progress-fill.danger { background: var(--danger); }
+
+        .score-val-text {
+            font-weight: 700;
+            font-size: 0.95rem;
+            min-width: 45px;
+        }
+
+        .action-link {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: white;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.15);
+        }
+
+        .action-link:hover {
+            background: var(--hover-gradient);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="ranking-header">
+            <div>
+                <a href="{{ url_for('index') }}" class="back-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 18px; height: 18px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                    </svg>
+                    Back to Screen
+                </a>
+                <h2 style="margin-top: 0.5rem;">Candidate Rankings</h2>
+            </div>
+            <div style="text-align: right;">
+                <span style="font-size: 0.9rem; color: var(--text-secondary);">Scanned Resumes</span>
+                <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent-cyan);">{{ candidates|length }} Candidates</div>
+            </div>
+        </div>
+
+        <div class="card" style="padding: 1.5rem;">
+            <div class="table-responsive">
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Rank</th>
+                            <th>Candidate Details</th>
+                            <th>Target Role</th>
+                            <th>Match Score</th>
+                            <th>Skills Match</th>
+                            <th>Recommendation</th>
+                            <th style="text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cand in candidates %}
+                        <tr>
+                            <td>
+                                <span class="rank-badge">{{ loop.index }}</span>
+                            </td>
+                            <td>
+                                <div class="candidate-meta-name">
+                                    {% if cand.details.name != "Not Found" %}{{ cand.details.name }}{% else %}Anonymous Candidate{% endif %}
+                                </div>
+                                <div class="candidate-meta-filename">{{ cand.filename }}</div>
+                                <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.4rem;">
+                                    {% for tag in cand.result.smart_tags %}
+                                    <span style="font-size: 0.7rem; font-weight: 700; background: rgba(99, 102, 241, 0.1); color: var(--accent-cyan); padding: 0.15rem 0.4rem; border-radius: 4px;">{{ tag }}</span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td>
+                                {% if cand.details.experience.roles and cand.details.experience.roles[0] != "Not specified" %}
+                                    <span style="font-weight: 600; color: var(--text-primary);">{{ cand.details.experience.roles[0] }}</span>
+                                {% else %}
+                                    <span style="color: var(--text-secondary); font-style: italic;">Unspecified</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="score-bar-container">
+                                    <div class="mini-progress">
+                                        <div class="mini-progress-fill {{ cand.result.recommendation_badge }}" data-width="{{ cand.result.score }}"></div>
+                                    </div>
+                                    <span class="score-val-text">{{ cand.result.score }}%</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span style="font-weight: 700; color: var(--text-primary);">{{ cand.result.matched_skills|length }}</span>
+                                <span style="color: var(--text-secondary);">/ {{ (cand.result.matched_skills|length + cand.result.missing_skills|length) }}</span>
+                            </td>
+                            <td>
+                                <span class="badge {{ cand.result.recommendation_badge }}">{{ cand.result.recommendation }}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <a href="{{ url_for('candidate_detail', candidate_id=cand.id) }}" class="action-link">View Analysis</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer style="margin-top: 5rem; text-align: center; color: var(--text-secondary); font-size: 0.85rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; padding-bottom: 2rem;">
+            HireFlow AI • Enterprise Hiring SaaS • Dynamic Matching Dashboard.
+        </footer>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.mini-progress-fill').forEach(el => {
+                const w = el.getAttribute('data-width');
+                if (w) {
+                    el.style.width = w + '%';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
