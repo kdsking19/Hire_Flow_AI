@@ -2,6 +2,10 @@
 
 A lightweight Flask-based resume screening app that analyzes candidate resumes against a job description and produces an interactive match report.
 
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
+![NLP](https://img.shields.io/badge/NLP-7B61FF?style=for-the-badge&logo=ai&logoColor=white)
+
 ## Project Description
 
 This project combines document parsing, resume text extraction, NLP, and semantic matching to help recruiters screen candidates faster.
