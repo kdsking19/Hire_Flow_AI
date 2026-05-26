@@ -1,4 +1,4 @@
-# Resume Screener
+# Hire Flow AI Resume Screener
 
 A lightweight Flask-based resume screening app that analyzes candidate resumes against a job description and produces an interactive match report.
 
