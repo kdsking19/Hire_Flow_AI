@@ -2,6 +2,8 @@
 
 A lightweight Flask-based resume screening app that analyzes candidate resumes against a job description and produces an interactive match report.
 
+![HTML](https://img.shields.io/badge/HTML-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS](https://img.shields.io/badge/CSS-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
 ![NLP](https://img.shields.io/badge/NLP-7B61FF?style=for-the-badge&logo=ai&logoColor=white)
