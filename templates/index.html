@@ -114,8 +114,16 @@
 
     <div class="container">
         <header>
-            <div style="font-weight: 800; font-size: 1.1rem; color: var(--accent-cyan); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.5rem;">HIREFLOW AI</div>
-            <h1>Next-Gen Candidate Screening Platform</h1>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="font-weight: 800; font-size: 1.1rem; color: var(--accent-cyan); letter-spacing: 1px; text-transform: uppercase;">HIREFLOW AI</div>
+                <a href="{{ url_for('history') }}" style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 600; padding: 0.4rem 0.8rem; border: 1px solid var(--border-color); border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.color='var(--accent-indigo)'; this.style.borderColor='var(--accent-indigo)';" onmouseout="this.style.color='var(--text-secondary)'; this.style.borderColor='var(--border-color)';">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 16px; height: 16px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                    </svg>
+                    History
+                </a>
+            </div>
+            <h1 style="margin-top: 1rem;">Next-Gen Candidate Screening Platform</h1>
             <p>Accelerate recruiting with NLP-based credential extraction, ATS optimization analysis, and context-aware semantic matching.</p>
         </header>
 

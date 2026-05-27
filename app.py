@@ -115,6 +115,32 @@ def candidate_detail(candidate_id):
         resume_text=record.get("resume_text", "")
     )
 
+# --- Resume Upload History Management ---
+@app.route("/history")
+def history():
+    entries = []
+    for cid, record in ANALYSIS_CACHE.items():
+        entries.append({
+            "id": cid,
+            "filename": record.get("filename", "Unknown"),
+            "name": record.get("details", {}).get("name", "Not Found"),
+            "score": record.get("result", {}).get("score", 0),
+            "recommendation": record.get("result", {}).get("recommendation", "N/A"),
+            "recommendation_badge": record.get("result", {}).get("recommendation_badge", "primary"),
+            "decision": record.get("result", {}).get("recruiter_decision", None),
+            "matched_skills": record.get("result", {}).get("matched_skills", []),
+            "missing_skills": record.get("result", {}).get("missing_skills", []),
+        })
+    entries.sort(key=lambda x: x["score"], reverse=True)
+    return render_template("history.html", entries=entries)
+
+@app.route("/history/<candidate_id>/delete", methods=["POST"])
+def delete_history(candidate_id):
+    if candidate_id in ANALYSIS_CACHE:
+        del ANALYSIS_CACHE[candidate_id]
+        return jsonify({"success": True})
+    return jsonify({"success": False, "error": "Entry not found"}), 404
+
 # --- Recruiter Action States (SaaS Interactivity Simulation) ---
 @app.route("/candidate/<candidate_id>/action", methods=["POST"])
 def candidate_action(candidate_id):

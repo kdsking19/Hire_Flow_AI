@@ -202,7 +202,15 @@
                     </svg>
                     Back to Screen
                 </a>
-                <h2 style="margin-top: 0.5rem;">Candidate Rankings</h2>
+                <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem;">
+                    <h2>Candidate Rankings</h2>
+                    <a href="{{ url_for('history') }}" style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 600; padding: 0.3rem 0.7rem; border: 1px solid var(--border-color); border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.color='var(--accent-indigo)'; this.style.borderColor='var(--accent-indigo)';" onmouseout="this.style.color='var(--text-secondary)'; this.style.borderColor='var(--border-color)';">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 14px; height: 14px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                        </svg>
+                        History
+                    </a>
+                </div>
             </div>
             <div style="text-align: right;">
                 <span style="font-size: 0.9rem; color: var(--text-secondary);">Scanned Resumes</span>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireFlow AI - Resume Upload History</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .history-header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .back-btn:hover {
+            color: var(--accent-indigo);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            stroke: var(--text-secondary);
+            margin-bottom: 1rem;
+            opacity: 0.4;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .history-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .history-card:hover {
+            border-color: rgba(99, 102, 241, 0.2);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.05);
+        }
+
+        .history-card + .history-card {
+            margin-top: 0.75rem;
+        }
+
+        .history-card-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .history-card-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .history-card-filename {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            word-break: break-all;
+        }
+
+        .history-card-score {
+            font-size: 1.25rem;
+            font-weight: 800;
+            min-width: 50px;
+        }
+
+        .history-card-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .decision-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .decision-tag.shortlisted {
+            background: rgba(16, 185, 129, 0.15);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .decision-tag.hold {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fde047;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .decision-tag.rejected {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .decision-tag.pending {
+            background: rgba(100, 116, 139, 0.15);
+            color: #94a3b8;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: transparent;
+            color: var(--text-primary);
+        }
+
+        .btn-sm:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-secondary);
+        }
+
+        .btn-sm-view {
+            background: var(--accent-gradient);
+            border: none;
+            color: white;
+            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.15);
+        }
+
+        .btn-sm-view:hover {
+            background: var(--hover-gradient);
+            transform: translateY(-1px);
+        }
+
+        .btn-sm-delete {
+            background: transparent;
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .btn-sm-delete:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+
+        .history-count {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .history-count strong {
+            color: var(--accent-cyan);
+            font-size: 1.75rem;
+        }
+
+        .skill-tag-sm {
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--accent-gradient);
+            color: white;
+            padding: 0.85rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .history-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .history-card-left {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            .history-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="history-header">
+            <div>
+                <a href="{{ url_for('index') }}" class="back-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 18px; height: 18px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                    </svg>
+                    Back to Screening
+                </a>
+                <h2 style="margin-top: 0.5rem;">Resume Upload History</h2>
+            </div>
+            <div style="text-align: right;">
+                <div class="history-count">Total Screened</div>
+                <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent-cyan);">{{ entries|length }} Candidates</div>
+            </div>
+        </div>
+
+        {% if entries %}
+            {% for entry in entries %}
+            <div class="history-card" id="entry-{{ entry.id }}">
+                <div class="history-card-left">
+                    <div>
+                        <div class="history-card-name">
+                            {% if entry.name != "Not Found" %}{{ entry.name }}{% else %}Anonymous Candidate{% endif %}
+                        </div>
+                        <div class="history-card-filename">{{ entry.filename }}</div>
+                        <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.4rem;">
+                            {% for tag in entry.matched_skills[:3] %}
+                            <span class="skill-tag-sm">{{ tag }}</span>
+                            {% endfor %}
+                            {% if entry.missing_skills %}
+                            <span class="skill-tag-sm" style="background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.2); color: #fca5a5;">{{ entry.missing_skills|length }} gaps</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="history-card-score" style="color: {% if entry.score >= 80 %}var(--success){% elif entry.score >= 60 %}var(--primary){% elif entry.score >= 40 %}var(--warning){% else %}var(--danger){% endif %}">{{ entry.score }}%</div>
+                        <span class="badge {{ entry.recommendation_badge }}" style="font-size: 0.65rem; padding: 0.2rem 0.6rem; margin-bottom: 0;">{{ entry.recommendation }}</span>
+                    </div>
+                </div>
+                <div class="history-card-meta">
+                    <span class="decision-tag {% if entry.decision %}{{ entry.decision|lower }}{% else %}pending{% endif %}">
+                        {% if entry.decision %}{{ entry.decision }}{% else %}Pending{% endif %}
+                    </span>
+                    <div class="history-actions">
+                        <a href="{{ url_for('candidate_detail', candidate_id=entry.id) }}" class="btn-sm btn-sm-view">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 14px; height: 14px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            View
+                        </a>
+                        <button class="btn-sm btn-sm-delete" onclick="confirmDelete('{{ entry.id }}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 14px; height: 14px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                            </svg>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="card empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+                <h3>No Resume History</h3>
+                <p>You haven't screened any resumes yet. Upload a resume to get started.</p>
+                <a href="{{ url_for('index') }}" class="btn" style="display: inline-block; width: auto; padding: 0.75rem 2rem;">Upload a Resume</a>
+            </div>
+        {% endif %}
+
+        <footer style="margin-top: 5rem; text-align: center; color: var(--text-secondary); font-size: 0.85rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; padding-bottom: 2rem;">
+            HireFlow AI • Enterprise Hiring SaaS • Resume History Management.
+        </footer>
+    </div>
+
+    <div id="toast-notification" class="toast">Entry deleted!</div>
+
+    <script>
+        function confirmDelete(candidateId) {
+            if (!confirm('Are you sure you want to delete this resume analysis? This action cannot be undone.')) {
+                return;
+            }
+
+            fetch('/history/' + candidateId + '/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const entry = document.getElementById('entry-' + candidateId);
+                    if (entry) {
+                        entry.style.transition = 'all 0.3s ease';
+                        entry.style.opacity = '0';
+                        entry.style.transform = 'translateX(20px)';
+                        setTimeout(() => {
+                            entry.remove();
+                            // Check if any entries remain
+                            const remaining = document.querySelectorAll('.history-card');
+                            if (remaining.length === 0) {
+                                location.reload();
+                            } else {
+                                // Update count
+                                const countEl = document.querySelector('.history-count strong, .history-count .count-num');
+                                // Update the count text
+                                const headerCount = document.querySelector('.history-count + div');
+                                if (headerCount) {
+                                    headerCount.textContent = remaining.length + ' Candidates';
+                                }
+                            }
+                        }, 300);
+                    }
+
+                    const toast = document.getElementById('toast-notification');
+                    toast.textContent = 'Resume entry deleted successfully';
+                    toast.classList.add('show');
+                    setTimeout(() => {
+                        toast.classList.remove('show');
+                    }, 2500);
+                } else {
+                    alert('Failed to delete entry.');
+                }
+            })
+            .catch(err => {
+                console.error('Error deleting entry:', err);
+                alert('An error occurred while deleting.');
+            });
+        }
+    </script>
+</body>
+</html>
