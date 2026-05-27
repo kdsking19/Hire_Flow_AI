@@ -18,6 +18,7 @@ Key capabilities:
 - Extract candidate details such as name, email, phone, skills, experience, and education
 - Score resumes on keyword fit, skill alignment, education match, and ATS compatibility
 - Display ranked screening results with an interactive candidate detail view
+- View and manage resume upload history with delete capability
 - Provide a JSON API endpoint for programmatic integration
 
 ## Features
@@ -27,6 +28,7 @@ Key capabilities:
 - NLP extraction using `spaCy` and a custom skill ontology
 - Semantic scoring using `sentence-transformers`
 - ATS-friendly resume health indicators and recruiter decision tracking
+- Resume upload history page with view and delete management
 
 ## Getting Started
 
@@ -53,7 +55,19 @@ python app.py
 
 Then open `http://127.0.0.1:5000` in your browser.
 
-## API
+## Routes
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/` | Upload page (single & batch screening modes) |
+| POST | `/analyze` | Upload and analyze resume(s) against a job description |
+| GET | `/candidate/<id>` | View detailed candidate analysis report |
+| POST | `/candidate/<id>/action` | Update recruiter decision (Shortlisted/Hold/Rejected) |
+| GET | `/history` | View all analyzed resume upload history |
+| POST | `/history/<id>/delete` | Delete a resume analysis entry |
+| POST | `/api/analyze` | Programmatic JSON API for resume screening |
+
+### API
 
 A programmatic endpoint is available at `/api/analyze`.
 
@@ -69,7 +83,7 @@ Example response includes candidate details, match scores, and summary fields.
 - `services/parser_service.py` - PDF/DOCX text extraction
 - `services/ai_service.py` - resume detail extraction and NLP heuristics
 - `services/scoring_service.py` - semantic matching and score generation
-- `templates/` - HTML pages for index, ranking, and result views
+- `templates/` - HTML pages for index, ranking, result, and history views
 - `static/` - CSS and static assets
 - `uploads/` - temporary upload storage
 
@@ -77,7 +91,8 @@ Example response includes candidate details, match scores, and summary fields.
 
 - Make sure `python-docx` is installed instead of the obsolete `docx` package.
 - If you encounter `sentence_transformers` import errors, reinstall the dependency and any required PyTorch wheel for your environment.
-- The app uses local in-memory caching for candidate detail navigation during a single session.
+- The app uses local in-memory caching (`ANALYSIS_CACHE`) for candidate detail navigation during a single session. All data is lost when the server restarts.
+- The history page displays all analyzed resumes sorted by match score, with options to view details or delete entries.
 
 ## License
 
